@@ -5,7 +5,14 @@ import org.joda.time.LocalDate
 import org.joda.time.format.DateTimeFormat
 import scala.io.Source
 
-case class ParsedGame(date: LocalDate, awayTeam: String, homeTeam: String, awayScore: Int, homeScore: Int, awayLine: Double, overUnder: Double)
+case class ParsedGame(date: LocalDate, awayTeam: String, homeTeam: String, awayScore: Int, homeScore: Int, awayLine: Double, overUnder: Double) {
+  lazy val homeCover = ((homeScore - awayScore) > awayLine)
+  lazy val awayCover = ((homeScore - awayScore) < awayLine)
+  lazy val push = ((homeScore - awayScore) == (awayLine.toInt))
+
+  def awayCoverTeaser(teaserAmount: Int): Boolean = ((homeScore - awayScore - teaserAmount) < awayLine)
+  def homeCoverTeaser(teaserAmount: Int): Boolean = ((homeScore - awayScore + teaserAmount) > awayLine)
+}
 
 object Parser {
 
@@ -13,7 +20,6 @@ object Parser {
 
   def parse(f: File): List[ParsedGame] = {
     Source.fromFile(f).getLines.toList.flatMap(l => {
-      println(l)
       val pieces = l.split(",").toList
       pieces match {
         case dateStr :: away :: awayScore :: home :: homeScore :: awayLine :: overUnder :: Nil => try {

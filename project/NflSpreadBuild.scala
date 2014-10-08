@@ -1,6 +1,8 @@
 import sbt._
 import sbt.Keys._
 import com.typesafe.sbt.SbtScalariform._
+import sbtassembly.Plugin._
+import AssemblyKeys._
 
 object NflSpreadBuild extends Build {
   import Resolvers._
@@ -14,7 +16,7 @@ object NflSpreadBuild extends Build {
   lazy val nflspread = Project(
     id = "nflspread",
     base = file("."),
-    settings = defaultSettings ++ Seq(libraryDependencies ++= Dependencies.all)
+    settings = defaultSettings ++ assemblySettings ++ Seq(libraryDependencies ++= Dependencies.all)
   )
 
   val repos = Seq(sonatypeReleaseRepo)
