@@ -12,6 +12,24 @@ case class ParsedGame(date: LocalDate, awayTeam: String, homeTeam: String, awayS
 
   def awayCoverTeaser(teaserAmount: Int): Boolean = ((homeScore - awayScore - teaserAmount) < awayLine)
   def homeCoverTeaser(teaserAmount: Int): Boolean = ((homeScore - awayScore + teaserAmount) > awayLine)
+
+  def underdogCoverTeaser(teaserAmount: Int): Boolean =
+    if (awayLine > 0) {
+      awayCoverTeaser(teaserAmount)
+    } else if (awayLine > 0) {
+      homeCoverTeaser(teaserAmount)
+    } else {
+      awayCoverTeaser(teaserAmount)
+    }
+
+  def favoriteCoverTeaser(teaserAmount: Int): Boolean =
+    if (awayLine > 0) {
+      homeCoverTeaser(teaserAmount)
+    } else if (awayLine < 0) {
+      awayCoverTeaser(teaserAmount)
+    } else {
+      homeCoverTeaser(teaserAmount)
+    }
 }
 
 object Parser {

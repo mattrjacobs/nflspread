@@ -17,6 +17,7 @@ object Boot {
 
         printHomeAway(parsedList)
         printCoverTeaserBySpread(parsedList, 14)
+        printCoverTeaserByOverUnder(parsedList, 14)
       }
     }
     val allParsedGames = parsedGamesByYear.map(_._2).flatten
@@ -25,7 +26,7 @@ object Boot {
 
     printHomeAway(allParsedGames)
     printCoverTeaserBySpread(allParsedGames, 14)
-
+    printCoverTeaserByOverUnder(allParsedGames, 14)
   }
 
   def printHomeAway(l: List[ParsedGame]) = {
@@ -76,6 +77,41 @@ object Boot {
 
     coverTeaser.foreach {
       case (k, v) => println(s"Spread : ${k / 10.0}: Cover : ${v._1}, Lose: ${v._2}, W% : ${round(v._1 / (v._1 + v._2 + 0.0), 2)}")
+    }
+  }
+
+  def printCoverTeaserByOverUnder(l: List[ParsedGame], teaserAmount: Int) = {
+    //represent key as over/under * 10 to get integer and ordering
+    //div by 10 when printing
+    val coverTeaser: SortedMap[Int, (Int, Int, Int, Int)] =
+      l.foldLeft(SortedMap.empty[Int, (Int, Int, Int, Int)]) {
+        (m: SortedMap[Int, (Int, Int, Int, Int)], game: ParsedGame) =>
+          {
+            val overUnderKey: Int = (game.overUnder * 10).toInt
+
+            val tuple = m.get(overUnderKey) match {
+              case Some(t) => t
+              case None    => (0, 0, 0, 0)
+            }
+
+            val uCover = game.underdogCoverTeaser(teaserAmount)
+            val fCover = game.favoriteCoverTeaser(teaserAmount)
+
+            val updatedTuple = (if (fCover) tuple._1 + 1 else tuple._1,
+              if (fCover) tuple._2 else tuple._2 + 1,
+              if (uCover) tuple._3 + 1 else tuple._3,
+              if (uCover) tuple._4 else tuple._4 + 1)
+
+            m + (overUnderKey -> updatedTuple)
+          }
+      }
+
+    coverTeaser.foreach {
+      case (k, v) => {
+        println(s"O/U : ${k / 10.0}: Favorite W : ${v._1}, L: ${v._2}, W% : ${round(v._1 / (v._1 + v._2 + 0.0), 2)}")
+        println(s"O/U : ${k / 10.0}: Underdog W : ${v._3}, L: ${v._4}, W% : ${round(v._3 / (v._3 + v._4 + 0.0), 2)}")
+        println(s"O/U : ${k / 10.0}: Overall W : ${v._1 + v._3}, L: ${v._2 + v._4}, W% : ${round((v._1 + v._3) / (v._1 + v._2 + v._3 + v._4 + 0.0), 2)}")
+      }
     }
   }
 
