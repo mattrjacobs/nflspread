@@ -53,7 +53,7 @@ object NflSpreadBuild extends Build {
 object Dependencies {
   import Dependency._
 
-  val all = Seq(Runtime.logback)
+  val all = Seq(Compile.jodaTime, Compile.jodaConvert, Runtime.logback)
 }
 
 object Dependency {
